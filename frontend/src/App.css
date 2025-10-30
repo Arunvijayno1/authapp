@@ -1,0 +1,751 @@
+/* === 0. FONT IMPORT === */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* === 0. GLOBAL HTML/BODY FIX === */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box; 
+  background-color: var(--bg-light); /* Set base background color here */
+}
+
+*, *::before, *::after {
+  box-sizing: inherit; 
+}
+
+/* === 1. ROOT & GLOBAL STYLES (LIGHT THEME) === */
+:root {
+  --primary-color: #007bff; /* Main blue */
+  --primary-gradient: linear-gradient(135deg, #007bff, #0056b3);
+  --primary-hover: #0069d9;
+  
+  --text-color-dark: #212529; /* Main text color */
+  --text-color-muted: #6c757d; /* Muted text */
+
+  --bg-light: #f8f9fa; /* Overall light background */
+  --card-bg-light: #ffffff; /* Card background */
+  
+  --light-border: #e9ecef; /* Border color */
+
+  --input-bg-light: #ffffff; /* Input background */
+
+  --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.08); /* Softer shadow */
+  --shadow-deep: 0 15px 45px rgba(0, 0, 0, 0.12); 
+
+  --error-color: #dc3545;
+  --error-gradient: linear-gradient(135deg, #dc3545, #b02a37);
+  --error-hover-gradient: linear-gradient(135deg, #c82333, #8a1f29);
+  --success-color: #28a745;
+
+  --transition-speed: 0.3s ease-in-out;
+}
+
+/* === 2. GLOBAL LAYOUT WRAPPERS (LIGHT THEME) === */
+/* This is the main wrapper, replacing .App-dark */
+.App-light {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-light);
+  color: var(--text-color-dark); /* Default text color is now dark */
+}
+/* This class is no longer used, but we keep its styles for the light theme */
+.App-dark { 
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-light);
+  color: var(--text-color-dark);
+}
+
+
+/* === 3. NAVBARS (LIGHT THEME) === */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--card-bg-light); /* White navbar */
+  backdrop-filter: none; /* No glass */
+  border-bottom: 1px solid var(--light-border); /* Light border */
+  box-shadow: 0 4px 12px var(--shadow-light); /* Lighter shadow */
+  z-index: 1000;
+  position: sticky;
+  top: 0;
+}
+
+.nav-brand {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color var(--transition-speed);
+}
+.nav-brand:hover {
+  color: var(--text-color-dark);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.8rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-color-muted); /* Muted dark text */
+  font-weight: 500;
+  padding: 0.6rem 0;
+  position: relative;
+  transition: all var(--transition-speed);
+}
+.nav-link:hover {
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+.nav-link.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* === 4. CONTENT CONTAINERS (LIGHT THEME) === */
+.content-wrapper {
+  flex-grow: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  padding: 3rem 1.5rem; 
+  box-sizing: border-box; 
+}
+
+/* === 5. AUTH CARD (LIGHT THEME) === */
+.auth-card {
+  background: var(--card-bg-light); /* Solid white */
+  backdrop-filter: none; /* No glass */
+  padding: 3rem; 
+  border-radius: 18px; 
+  box-shadow: var(--shadow-deep); /* Softer shadow */
+  width: 100%;
+  max-width: 450px; 
+  border: 1px solid var(--light-border); /* Light border */
+  animation: cardAppear 0.6s ease-out forwards;
+  transition: transform 0.2s ease;
+}
+.auth-card:hover {
+  transform: translateY(-5px);
+}
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Toggle Switch */
+.auth-toggle {
+  display: flex;
+  background: #e9ecef; 
+  border-radius: 12px; 
+  margin-bottom: 2.5rem; 
+  padding: 6px; 
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); 
+}
+.toggle-btn {
+  flex: 1;
+  padding: 1rem; 
+  border: none;
+  background: transparent;
+  border-radius: 10px; 
+  font-size: 1.05rem; 
+  font-weight: 600;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  z-index: 2;
+  position: relative;
+  overflow: hidden; 
+}
+.toggle-btn.active {
+  background: var(--primary-gradient); /* Keep toggle blue */
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.35); 
+  transform: translateY(-2px);
+}
+.toggle-btn:not(.active):hover {
+  color: var(--primary-color);
+  background-color: #f1f3f5; 
+}
+
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 1.75rem; 
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem; 
+  font-weight: 500;
+  color: var(--text-color-dark);
+  font-size: 0.95rem;
+}
+.form-control {
+  width: 100%;
+  padding: 1rem 1.25rem; 
+  font-size: 1rem;
+  background: var(--input-bg-light);
+  border: 1px solid var(--light-border);
+  border-radius: 10px; 
+  color: var(--text-color-dark);
+  box-sizing: border-box;
+  transition: all var(--transition-speed);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); 
+}
+.form-control::placeholder { color: #adb5bd; }
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2), inset 0 1px 3px rgba(0,0,0,0.08); 
+  background: #fff;
+}
+.form-control.is-invalid {
+  border-color: var(--error-color);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+.form-control.is-valid {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+}
+.form-text-error {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: block;
+}
+.form-control-select {
+  min-height: 120px; 
+  padding: 0.75rem;
+  appearance: none; 
+  background: var(--input-bg-light) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 1rem center/16px 12px;
+}
+.form-control-select option {
+  padding: 0.5rem;
+}
+
+
+/* Auth Links */
+.auth-link {
+  text-align: right;
+  margin-bottom: 2rem; 
+}
+.auth-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color var(--transition-speed);
+}
+.auth-link a:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+/* Button (NEW STYLE) */
+.btn-primary {
+  width: 100%;
+  padding: 1.1rem; 
+  font-size: 1.1rem;
+  font-weight: 700; 
+  color: var(--primary-color); /* Blue text */
+  background: var(--card-bg-light); /* White background */
+  border: 2px solid var(--primary-color); /* Blue border */
+  border-radius: 10px; 
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15); /* Lighter shadow */
+  letter-spacing: 0.5px;
+}
+.btn-primary:hover {
+  background: var(--primary-gradient); /* Fills with blue on hover */
+  color: #fff; /* Text becomes white */
+  border-color: var(--primary-color); /* Ensure border color matches */
+  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.45); 
+  transform: translateY(-4px); 
+}
+.btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* Card Footer */
+.auth-card-footer {
+  text-align: center;
+  margin-top: 2.5rem; 
+  font-size: 0.9rem;
+  color: var(--text-color-muted);
+}
+.auth-card-footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition-speed);
+}
+.auth-card-footer a:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+/* === 6. HOME CONTAINER (LIGHT THEME) === */
+.home-container {
+  text-align: center;
+  background: var(--card-bg-light); /* White background */
+  backdrop-filter: none; /* No glass */
+  border: 1px solid var(--light-border); /* Light border */
+  border-radius: 18px;
+  padding: 3rem 4rem; 
+  box-shadow: var(--shadow-light); /* Lighter shadow */
+  animation: cardAppear 0.6s ease-out forwards;
+  max-width: 800px; 
+}
+
+/* Premium Title */
+.home-title-premium {
+  font-size: clamp(2.2rem, 5vw, 3rem); 
+  font-weight: 700;
+  color: var(--text-color-dark); /* Dark text */
+  text-shadow: none; /* No shadow on light bg */
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+/* Premium Description */
+.home-description-premium {
+  font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+  font-weight: 300; 
+  color: var(--text-color-muted); /* Muted dark text */
+  font-style: italic;
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto 2rem auto; 
+}
+.home-description-premium a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-style: normal;
+}
+.home-description-premium a:hover {
+  text-decoration: underline;
+}
+
+/* User Greeting */
+.home-user-greeting {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-color-dark); /* Dark text */
+  margin-top: 2rem;
+}
+.home-user-greeting strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Logout Button (NEW STYLE) */
+.btn-logout {
+  padding: 0.9rem 2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--error-color); /* Red text */
+  background: var(--card-bg-light); /* White background */
+  border: 2px solid var(--error-color); /* Red border */
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  margin-top: 2rem; 
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.15); /* Lighter shadow */
+}
+.btn-logout:hover {
+  background: var(--error-gradient); /* Fills with red on hover */
+  color: #fff; /* Text becomes white */
+  border-color: var(--error-color);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.45);
+}
+.btn-logout:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+
+/* === 7. FOOTERS (LIGHT THEME) === */
+.app-footer {
+  text-align: center;
+  padding: 1.5rem 2rem;
+  background: var(--card-bg-light); /* White footer */
+  backdrop-filter: none; /* No glass */
+  border-top: 1px solid var(--light-border); /* Light border */
+  color: var(--text-color-muted); /* Muted dark text */
+  font-size: 0.9rem;
+  box-shadow: 0 -4px 15px var(--shadow-light); /* Lighter shadow */
+}
+.app-footer .footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+.app-footer .footer-link {
+  color: var(--text-color-muted);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+.app-footer .footer-link:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+/* === USER DASHBOARD STYLES === */
+.dashboard-container {
+  width: 100%;
+  min-height: 80vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  background: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-topbar {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-topbar h2 {
+  color: var(--text-color-dark);
+  font-weight: 600;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.dashboard-card {
+  background: var(--card-bg-light);
+  border: 1px solid var(--light-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-light);
+  padding: 1.8rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-deep);
+}
+
+.dashboard-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-card p {
+  color: var(--text-color-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1.5rem 1rem;
+  }
+  .dashboard-topbar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* === ADMIN DASHBOARD (SAME AS USER STYLE) === */
+.dashboard-container {
+  width: 100%;
+  min-height: 80vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  background: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-topbar {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  padding: 1.8rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.dashboard-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-card p {
+  color: var(--text-color-dark);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* === CREATE ELECTION FORM === */
+.create-election-form {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(15px);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.candidate-group {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.candidate-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 0.5rem;
+  border: 2px solid var(--primary-color);
+}
+
+.btn-secondary {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: rgba(0, 170, 255, 0.2);
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-secondary:hover {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+
+/* === 8. MESSAGES (LIGHT THEME) === */
+.message {
+  text-align: center;
+  padding: 0.9rem; 
+  margin-bottom: 1.75rem;
+  border-radius: 10px; 
+  font-weight: 500;
+  border: 1px solid;
+  animation: messageFadeIn 0.4s ease-out;
+}
+@keyframes messageFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.error-message {
+  background-color: rgba(220, 53, 69, 0.1); /* Lighter error bg */
+  color: var(--error-color);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+.success-message {
+  background-color: rgba(40, 167, 69, 0.1); /* Lighter success bg */
+  color: var(--success-color);
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+/* === 9. RESPONSIVENESS === */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.8rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .nav-brand {
+    font-size: 1.4rem;
+  }
+  .nav-links {
+    gap: 1rem;
+  }
+  .nav-link {
+    font-size: 0.9rem;
+  }
+  .content-wrapper {
+    padding: 2rem 1rem;
+    align-items: flex-start; 
+    padding-top: 5vh; 
+  }
+  .auth-card {
+    padding: 2rem 1.5rem; 
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  }
+  .auth-toggle {
+    margin-bottom: 1.5rem;
+    padding: 4px;
+  }
+  .toggle-btn {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+  .home-container {
+    padding: 2.5rem 1.5rem;
+    border-radius: 12px;
+  }
+  .home-title-premium {
+    font-size: 1.8rem;
+  }
+  .home-description-premium {
+    font-size: 1rem;
+  }
+  .home-user-greeting {
+    font-size: 1.1rem;
+  }
+  .app-footer {
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+  .app-footer .footer-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+/* === USER DASHBOARD ELECTION STYLING === */
+.wide-card {
+  grid-column: span 2;
+}
+
+.election-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+
+.election-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: 0.3s;
+}
+
+.election-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.candidate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.candidate-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  width: 140px;
+  text-align: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  transition: 0.3s ease;
+}
+
+.candidate-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.candidate-preview {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.small-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+.winner-box {
+  background: rgba(0, 255, 150, 0.1);
+  border: 2px solid rgba(0, 255, 150, 0.4);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.winner-box img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}
+
