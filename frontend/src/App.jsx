@@ -135,6 +135,8 @@ function AppLayout() {
           <Route path="/create-election" element={<CreateElection />} />
           <Route path="/elections" element={<ElectionsList />} />
           <Route path="/election/:id" element={<ElectionVote />} />
+          
+
 
 
           {/* Add more routes here as needed (e.g., /dashboard, /profile) */}

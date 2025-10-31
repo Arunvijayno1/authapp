@@ -9,34 +9,33 @@ const ElectionVote = () => {
   const [user, setUser] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [countdown, setCountdown] = useState(null);
 
   useEffect(() => {
     const sUser = JSON.parse(localStorage.getItem("user"));
-    if (!sUser) {
-      navigate("/login");
-      return;
-    }
+    if (!sUser) { navigate("/login"); return; }
     setUser(sUser);
 
     const load = () => {
       const stored = JSON.parse(localStorage.getItem("elections")) || [];
-      const found = stored.find((e) => String(e.id) === String(id));
-      setElection(found || null);
+      const found = stored.find(e => String(e.id) === String(id));
+      if (!found) { setElection(null); return; }
 
-      if (found) {
-        // check if user already voted in this election
-        const votedBy = found.votedBy ?? [];
-        setHasVoted(votedBy.includes(sUser.username));
-        // compute winner if ended
-        const now = new Date();
-        const end = found.endDateTime ? new Date(found.endDateTime) : null;
-        if (end && now > end) {
-          const sorted = [...(found.candidates || [])].sort((a,b)=> (b.votes||0) - (a.votes||0));
-          setWinner(sorted[0] ?? null);
-        } else {
-          setWinner(null);
-        }
+      const votedBy = found.votedBy ?? [];
+      setHasVoted(votedBy.includes(sUser.username));
+
+      // compute winner if ended
+      const now = Date.now();
+      const end = found.endDateTime ? new Date(found.endDateTime).getTime() : null;
+      if (end && now > end) {
+        const sorted = [...(found.candidates || [])].sort((a,b) => (b.votes||0)-(a.votes||0));
+        setWinner(sorted[0] ?? null);
+        found.status = "Ended";
+      } else {
+        setWinner(null);
       }
+
+      setElection(found);
     };
 
     load();
@@ -44,25 +43,57 @@ const ElectionVote = () => {
     return () => window.removeEventListener("electionsUpdated", load);
   }, [id, navigate]);
 
-  if (!election) return <div className="dashboard-container"><div className="dashboard-card">Election not found.</div></div>;
+  // countdown
+  useEffect(() => {
+    if (!election || !election.endDateTime) return;
+    const tick = () => {
+      const now = Date.now();
+      const end = new Date(election.endDateTime).getTime();
+      const distance = end - now;
+      if (distance <= 0) {
+        setCountdown({ expired: true });
+        // mark ended once
+        const stored = JSON.parse(localStorage.getItem("elections")) || [];
+        const idx = stored.findIndex(x => String(x.id) === String(election.id));
+        if (idx !== -1 && stored[idx].status !== "Ended") {
+          stored[idx].status = "Ended";
+          localStorage.setItem("elections", JSON.stringify(stored));
+          window.dispatchEvent(new Event("electionsUpdated"));
+        }
+      } else {
+        const hours = Math.floor((distance / (1000*60*60)) % 24);
+        const minutes = Math.floor((distance / (1000*60)) % 60);
+        const seconds = Math.floor((distance / 1000) % 60);
+        setCountdown({ hours, minutes, seconds, expired: false });
+      }
+    };
 
-  const now = new Date();
-  const start = election.startDateTime ? new Date(election.startDateTime) : null;
-  const end = election.endDateTime ? new Date(election.endDateTime) : null;
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [election]);
+
+  if (!election) return (
+    <div className="dashboard-container">
+      <div className="dashboard-card">Election not found.</div>
+    </div>
+  );
+
+  const now = Date.now();
+  const start = election.startDateTime ? new Date(election.startDateTime).getTime() : null;
+  const end = election.endDateTime ? new Date(election.endDateTime).getTime() : null;
   const isActive = (!start || now >= start) && (!end || now <= end);
   const isEnded = end && now > end;
 
   const castVote = (candidateIndex) => {
-    if (!user) return alert("Please login to vote.");
-    if (!isActive) return alert("Election is not active.");
-    if (hasVoted) return alert("You already voted in this election.");
+    if (!user) { alert("Login required"); return; }
+    if (!isActive) { alert("Election not active"); return; }
+    if (hasVoted) { alert("Already voted"); return; }
 
-    // load elections, update candidate votes, total, votedBy
     const stored = JSON.parse(localStorage.getItem("elections")) || [];
-    const idx = stored.findIndex((e) => String(e.id) === String(election.id));
-    if (idx === -1) return alert("Election not found (race condition).");
+    const idx = stored.findIndex(e => String(e.id) === String(election.id));
+    if (idx === -1) { alert("Election not found"); return; }
 
-    // increment candidate votes
     stored[idx].candidates[candidateIndex].votes = (stored[idx].candidates[candidateIndex].votes || 0) + 1;
     stored[idx].totalVotes = (stored[idx].totalVotes || 0) + 1;
     stored[idx].votedBy = Array.from(new Set([...(stored[idx].votedBy || []), user.username]));
@@ -71,7 +102,6 @@ const ElectionVote = () => {
     window.dispatchEvent(new Event("electionsUpdated"));
 
     setHasVoted(true);
-    // reload local election state
     setElection(stored[idx]);
     alert("Vote recorded. Thank you!");
   };
@@ -79,7 +109,7 @@ const ElectionVote = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-topbar">
-        <h2>{election.title}</h2>
+        <h2>{election.title || election.name}</h2>
         <div>
           <button className="btn-primary" onClick={() => navigate(-1)}>Back</button>
         </div>
@@ -87,14 +117,20 @@ const ElectionVote = () => {
 
       <div className="dashboard-grid" style={{ maxWidth: 1100 }}>
         <div className="dashboard-card wide-card">
-          <p><strong>Start:</strong> {start ? start.toLocaleString() : "Not set"}</p>
-          <p><strong>End:</strong> {end ? end.toLocaleString() : "Not set"}</p>
+          <p><strong>Start:</strong> {start ? new Date(start).toLocaleString() : "Not set"}</p>
+          <p><strong>End:</strong> {end ? new Date(end).toLocaleString() : "Not set"}</p>
           <p><strong>Total votes:</strong> {election.totalVotes ?? 0}</p>
 
-          {isEnded && (
+          {countdown && !countdown.expired && (
+            <p style={{ color: "var(--primary-color)", fontWeight: 600 }}>
+              ⏳ Time remaining: {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
+            </p>
+          )}
+
+          {isEnded && winner && (
             <div style={{ marginTop: 12, padding: 12, borderRadius: 8, background: "rgba(0,0,0,0.04)" }}>
-              <strong>Result:</strong>{" "}
-              {winner ? `${winner.name} (${winner.party}) — ${winner.votes ?? 0} votes` : "No candidates"}
+              <strong>🏁 Result:</strong> {winner.name} ({winner.party}) — {winner.votes ?? 0} votes
+              {winner.photo && <div style={{ marginTop: 10 }}><img src={winner.photo} alt={winner.name} style={{ width: 80, height: 80, borderRadius: 8 }} /></div>}
             </div>
           )}
         </div>
@@ -102,7 +138,7 @@ const ElectionVote = () => {
         <div className="dashboard-card" style={{ gridColumn: "span 2" }}>
           <h3>Candidates</h3>
           <div className="candidate-list">
-            {election.candidates.map((c, i) => (
+            {election.candidates?.map((c, i) => (
               <div key={i} className="candidate-card">
                 {c.photo && <img src={c.photo} alt={c.name} className="candidate-preview" />}
                 <h5>{c.name}</h5>

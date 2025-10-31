@@ -168,7 +168,7 @@ const Signup = () => {
           >
             <option value="user">User</option>
             <option value="admin">Admin</option>
-            <option value="backend">Backend</option>
+            
           </select>
           {validation.roles && <span className="form-text-error">{validation.roles}</span>}
         </div>
