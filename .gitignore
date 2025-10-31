@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# IDE and system files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Capacitor/Android build artifacts
+android/app/build/
+android/.gradle/
+android/.idea/
+android/local.properties
+
+# Docker
+mongo_data/

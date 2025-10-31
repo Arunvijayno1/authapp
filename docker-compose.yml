@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: evoting_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - DOCKER_ENV=true
+      - MONGO_URI_LOCAL=mongodb://host.docker.internal:27017/mern-auth
+      - JWT_SECRET=your_super_secret_key_123
+    depends_on:
+      - mongodb
+    networks:
+      - evoting_net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: evoting_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    networks:
+      - evoting_net
+    command: ["npm", "run", "dev", "--", "--host"]
+
+  mongodb:
+    image: mongo:6.0
+    container_name: evoting_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - evoting_net
+
+networks:
+  evoting_net:
+    driver: bridge
+
+volumes:
+  mongo_data:
